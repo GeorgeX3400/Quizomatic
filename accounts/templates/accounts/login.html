@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Autentificare</title>
+</head>
+<body>
+    <h2>Autentificare</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Login</button>
+    </form>
+    <p>
+        Nu ai cont? <a href="{% url 'register' %}">Creează unul</a>.
+    </p>
+</body>
+</html>
