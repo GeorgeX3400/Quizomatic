@@ -1,0 +1,28 @@
+# Python/Django specific
+*.pyc
+__pycache__/
+*.sqlite3
+*.log
+
+# Environment variables
+.env
+
+# Virtual environments
+venv/
+
+# Node.js specific
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# IDE specific
+.vscode/
+.idea/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+.todo
