@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <title>Upload fișier</title>
+</head>
+<body>
+  <h2>Încarcă un fișier</h2>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Încarcă</button>
+  </form>
+
+  <h3>Fișiere încărcate:</h3>
+  <ul>
+    {% for u in uploads %}
+      <li>
+        <a href="{{ u.file.url }}">{{ u.file.name }}</a>
+        — {{ u.uploaded_at|date:"SHORT_DATETIME_FORMAT" }}
+      </li>
+    {% empty %}
+      <li>Nu ai încărcat niciun fișier.</li>
+    {% endfor %}
+  </ul>
+
+  <p><a href="{% url 'dashboard' %}">Înapoi la dashboard</a></p>
+</body>
+</html>

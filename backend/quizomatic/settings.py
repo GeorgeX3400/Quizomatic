@@ -88,17 +88,11 @@ WSGI_APPLICATION = 'quizomatic.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('DB_NAME'),
-        'USER': env('DB_USER'),
-        'PASSWORD': env('DB_PASSWORD'),
-        'HOST': env('DB_HOST'),
-        'PORT': env('DB_PORT'),
-        'OPTIONS': {
-            'sslmode': 'require',
-        },
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
 
 CORS_ALLOW_HEADERS = [
     'content-type',
@@ -163,6 +157,8 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL  = '/media/'
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
 

@@ -3,6 +3,8 @@ import {useState, useEffect} from 'react';
 import axios from 'axios';
 import { getAccessToken, clearTokens} from '../assets/auth';
 import { useNavigate } from 'react-router';
+import DragDropUpload from './components/DragDropUpload';
+
 const MainPage = () => {
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
@@ -34,6 +36,13 @@ const MainPage = () => {
         clearTokens(); // Clear tokens from storage
         navigate('/login'); // Redirect to the login page
     }
+
+    return (
+        <div>
+          <h1>Upload Your Files</h1>
+          <DragDropUpload />
+        </div>
+      );
 
     return (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
