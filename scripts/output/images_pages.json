@@ -1,0 +1,6 @@
+[
+  {
+    "page": 1,
+    "text": "Regresia Liniara. Regresia Ridge 41. Regresia Liniara Dorim sa gasim o functie g astfel incat: Vrat = 9X) = Ey isn xw, + b si care interpoleaza cel mai bine o multime de exemple (x. v yp X, yy)» os X, YJ: Pentru a gasi aceasta functie, vom minimiza valoarea functiei Mean Squared Error pe multimea de antrenare. MSE(Y Vy) = %, 2. Regresia Ridge Regresia Ridge adauga o noua \"penalizare” functiei de cost, pe langa faptul ca diferenta intre etichetele ground-truth si etichetele prezise trebuie sa fie minima, dorim ca ponderile pe care le invatam sa fie mici. Pentru a forta ponderile sa fie mici, vom adauga la functia de cost norma L,a ponderilor. isn 2 COSt a igeY + Vrat ) ==, Onat, — ¥ + allWIl, Parametrul a controleaza cat de mici sa fie ponderile. 3. Regresia Lasso Regresia Lasso adauga norma L. a ponderilor la functia de cost, creand o reprezentare sparse a ponderilor. isn CO8t asso Vag) = Fiat 2 Ore —) + allWil, in acest laborator vom folosi modelele implementate in biblioteca Scikit-Learn. from sklearn.linear_model import LinearRegression, Ridge, Lasso linear_regression_model = LinearRegression() ridge_regression_model = Ridge(alpha=1) lasso_regression_model = Lasso(alpha=1) from sklearn.metrics import mean_squared_error, mean_absolute_error"
+  }
+]
