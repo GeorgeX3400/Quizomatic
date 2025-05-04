@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import {BrowserRouter as Router, Routes, Route} from 'react-router'
+import { BrowserRouter as Router, Routes, Route } from 'react-router';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import MainPage from './pages/MainPage';
+import CreateChatPage from './pages/CreateChatPage';
 
 import './App.css'
 
@@ -20,6 +21,7 @@ function App() {
       <Route path='/dashboard' element={<MainPage/>}></Route>
       <Route path='/login' element={<LoginPage/>}></Route>
       <Route path='/register' element={<RegisterPage/>}></Route>
+      <Route path='/create-chat' element={<CreateChatPage/>}></Route>
     </Routes>
   </Router>
   ;

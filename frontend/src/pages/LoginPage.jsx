@@ -65,6 +65,7 @@ function LoginPage() {
               type="text"
               id="username"
               name="username"
+              className="auth-input"
               placeholder="Enter your username"
               value={credentials.username}
               onChange={handleChange}
@@ -77,23 +78,12 @@ function LoginPage() {
               type="password"
               id="password"
               name="password"
+              className="auth-input"
               placeholder="Enter your password"
               value={credentials.password}
               onChange={handleChange}
               required
             />
-          </div>
-          <div className="form-group">
-            <label htmlFor="stay_logged_in">
-              <input
-                type="checkbox"
-                id="stay_logged_in"
-                name="stay_logged_in"
-                checked={credentials.stay_logged_in}
-                onChange={handleChange}
-              />
-              Stay logged in
-            </label>
           </div>
           <button type="submit" className="auth-button">
             Login

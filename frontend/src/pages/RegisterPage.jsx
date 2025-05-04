@@ -1,6 +1,3 @@
-
-
-
 import React from "react";
 import { Link, Navigate } from "react-router";
 import { useState } from 'react';
@@ -63,53 +60,60 @@ function RegisterPage() {
 
   return (
     <div className="auth-container">
-      <h2 className="auth-title">Register</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Username</label>
-          <input
-            type="text"
-            name="username"
-            onChange={handleChange}
-          />
-        </div>
+      <div className="auth-card">
+        <h2 className="auth-title">Register</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Username</label>
+            <input
+              type="text"
+              name="username"
+              placeholder="Enter your username"
+              className="auth-input"
+              onChange={handleChange}
+            />
+          </div>
 
-        <div className="form-group">
-          <label>Email</label>
-          <input
-            type="email"
-            name="email"
-            onChange={handleChange}
-            placeholder="Enter your email"
-          />
-        </div>
-        <div className="form-group">
-          <label>Password</label>
-          <input
-            type="password"
-            name="password"
-            onChange={handleChange}
-            placeholder="Create a password"
-          />
-        </div>
-        <div className="form-group">
-          <label>Confirm Password</label>
-          <input
-            type="password"
-            name="confirm-password"
-            placeholder="Confirm your password"
-          />
-        </div>
-        <button className="auth-button">
-          Register
-        </button>
-      </form>
-      <p className="auth-footer">
-        Already have an account?{" "}
-        <Link to="/login" className="auth-link">
-          Login here
-        </Link>
-      </p>
+          <div className="form-group">
+            <label>Email</label>
+            <input
+              type="email"
+              name="email"
+              className="auth-input"
+              onChange={handleChange}
+              placeholder="Enter your email"
+            />
+          </div>
+          <div className="form-group">
+            <label>Password</label>
+            <input
+              type="password"
+              name="password"
+              className="auth-input"
+              onChange={handleChange}
+              placeholder="Create a password"
+            />
+          </div>
+          <div className="form-group">
+            <label>Confirm Password</label>
+            <input
+              type="password"
+              name="confirm-password"
+              className="auth-input"
+              placeholder="Confirm your password"
+            />
+          </div>
+          <button className="auth-button">
+            Register
+          </button>
+        </form>
+        <p className="auth-footer">
+          Already have an account?{" "}
+          <Link to="/login" className="auth-link">
+            Login here
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }

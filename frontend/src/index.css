@@ -5,7 +5,7 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: #b5fccd;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -42,7 +42,7 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #3d90d7;
   cursor: pointer;
   transition: border-color 0.25s;
 }
@@ -65,4 +65,122 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+/* Authentication Page Styles */
+.auth-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #b5fccd;
+  padding: 20px;
+}
+
+.auth-card {
+  background-color: #7ac6d2;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  width: 100%;
+  max-width: 400px;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-title {
+  font-size: 1.8em;
+  color: #3a59d1;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  font-size: 1em;
+  font-weight: 500;
+  color: #3a59d1;
+  margin-bottom: 5px;
+  text-align: left;
+  padding-left: 2px;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  color:rgba(0, 0, 0, 0.648);
+  border: 3px solid #3d90d7;
+  border-radius: 4px;
+  font-size: 1em;
+}
+
+input:focus {
+  outline: none;
+  color:rgba(0, 0, 0, 0.648);
+  border-color: #3a59d1;
+  box-shadow: 0 0 4px #3a59d1;
+}
+
+/* Updated input styles for better appearance */
+.auth-input {
+  background-color: #ffffff;
+  border: 2px solid #3d90d7;
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 1em;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: #3a59d1;
+  box-shadow: 0 0 4px #3a59d1;
+}
+
+.auth-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #3d90d7;
+  color: white;
+  font-size: 1em;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.auth-button:hover {
+  background-color: #3a59d1;
+}
+
+.auth-footer {
+  margin-top: 15px;
+  text-align: center;
+  font-size: 0.9em;
+  color: #3a59d1;
+}
+
+.auth-link {
+  color: #3d90d7;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
 }
