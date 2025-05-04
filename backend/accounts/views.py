@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from rest_framework.views import APIView
@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from .forms import CustomUserCreationForm, CustomLoginForm
 from .serializers import *
 from rest_framework import status, generics
-from rest_framework.parsers import JSONParser
+from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 import io
@@ -52,10 +52,53 @@ class RegisterView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = [AllowAny]   
+    
 
-class HomeView(APIView):  
+class ChatsView(generics.ListAPIView):  
+   queryset = Chat.objects.all()
    permission_classes = (IsAuthenticated, )
-   def get(self, request):
-    content = {'message': 'Hello'}
-    return Response(content)
+   serializer_class = ChatSerializer
+
+   def get_queryset(self):
+       return Chat.objects.filter(user=self.request.user)
+   
+   def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+class ChatCreateView(generics.CreateAPIView):
+    queryset = Chat.objects.all()
+    serializer_class = ChatSerializer
+    permission_classes = (IsAuthenticated, )
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class DocumentAddView(generics.CreateAPIView):
+    queryset = Document.objects.all()
+    serializer_class = DocumentSerializer
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser]
+
+    def perform_create(self, serializer):
+        chat_id = self.request.data.get('chat_id')
+        if not chat_id:
+            raise serializers.ValidationError({'chat_id': 'This field is required.'})
+            
+        chat = get_object_or_404(Chat, id=chat_id, user=self.request.user)
+        file = self.request.FILES.get('file')
+        if not file:
+            raise serializers.ValidationError({'file': 'No file was submitted.'})
+            
+        serializer.save(chat=chat, file=file)
+
+class DocumentListView(generics.ListAPIView):
+    serializer_class = DocumentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Document.objects.filter(chat__user=self.request.user)
+
 
