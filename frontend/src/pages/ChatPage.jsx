@@ -13,6 +13,11 @@ export default function ChatPage() {
   const [input, setInput] = useState('');
   const [error, setError] = useState(null);
 
+  // --- Nou: stări pentru quiz ---
+  const [numQuestions, setNumQuestions] = useState(5);
+  const [difficulty,  setDifficulty]   = useState('easy');
+  const [quizQuestions, setQuizQuestions] = useState([]);
+
   const handleDocUploadSuccess = (doc) => {
     setDocs(prev => [doc, ...prev]);
   };
@@ -26,7 +31,7 @@ export default function ChatPage() {
           `http://localhost:8000/chats/${chatId}/messages/`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setDocs(res.data);
+        setMessages(res.data);
       } catch (e) {
         console.error(e);
       }
@@ -81,6 +86,25 @@ export default function ChatPage() {
       setError('Failed to get reply. Try again.');
     }
   };
+
+  //  generare quiz
+  const handleGenerateQuiz = async (e) => {
+    e.preventDefault();
+    setError(null);
+    try {
+      const token = await getAccessToken();
+      const res = await axios.post(
+        `http://localhost:8000/chats/${chatId}/generate-quiz/`,
+        { num_questions: numQuestions, difficulty },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setQuizQuestions(res.data.questions);
+    } catch (e) {
+      console.error(e);
+      setError('Eroare la generarea quiz-ului.');
+    }
+  };
+
 
   return (
     <>
@@ -173,6 +197,68 @@ export default function ChatPage() {
           />
   
           <div style={{ marginTop: 20 }}>
+            {/* ————— Generare Quiz ————— */}
+            <div style={{
+                marginTop: 40,
+                padding: 20,
+                border: '1px solid #3A59D1',
+                borderRadius: 8,
+                background: '#f0f8ff'
+            }}>
+              <h3>Generează un Quiz</h3>
+              <form onSubmit={handleGenerateQuiz}
+                    style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <div>
+                  <label>Număr întrebări:</label><br/>
+                  <input
+                    type="number" min="1" max="20"
+                    value={numQuestions}
+                    onChange={e => setNumQuestions(e.target.value)}
+                    style={{ width: 60, padding: 4 }}
+                  />
+                </div>
+                <div>
+                  <label>Dificultate:</label><br/>
+                  <select
+                    value={difficulty}
+                    onChange={e => setDifficulty(e.target.value)}
+                    style={{ padding: 4 }}
+                  >
+                    <option value="easy">Ușor</option>
+                    <option value="medium">Mediu</option>
+                    <option value="hard">Greu</option>
+                  </select>
+                </div>
+                <button type="submit" style={{
+                  padding: '8px 12px',
+                  background: '#3A59D1',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 4
+                }}>
+                  Generează
+                </button>
+              </form>
+              {error && <p style={{ color: 'red' }}>{error}</p>}
+
+              {quizQuestions.length > 0 && (
+                <div style={{ marginTop: 20 }}>
+                  <h4>Întrebările Quiz-ului:</h4>
+                  <ol>
+                    {quizQuestions.map(q => (
+                      <li key={q.id} style={{ marginBottom: 10 }}>
+                        <strong>{q.question}</strong>
+                        <ul>
+                          {q.options.map((opt, i) => <li key={i}>{opt}</li>)}
+                        </ul>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+            </div>
+            {/* —————————————————————— */}
+
             <h3>Uploaded Documents</h3>
             {docs.length === 0 ? (
               <p style={{ fontStyle: 'italic' }}>No documents yet</p>

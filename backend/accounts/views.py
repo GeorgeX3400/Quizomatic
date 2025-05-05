@@ -174,3 +174,31 @@ class ChatMessageView(APIView):
 
         # 4) Return the generated reply
         return Response({'reply': assistant_text})
+    
+class QuizGenerateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, chat_id):
+        # 1) Verificăm chat-ul
+        chat = get_object_or_404(Chat, id=chat_id, user=request.user)
+
+        # 2) Parsăm payload-ul
+        num_q     = int(request.data.get('num_questions', 5))
+        difficulty= request.data.get('difficulty', 'easy')
+
+        # 3) Aici ai logica ta reală de generare din documente;
+        #    momentan întoarcem un stub:
+        questions = []
+        for i in range(num_q):
+            questions.append({
+                "id": i+1,
+                "question": f"Întrebarea {i+1} ({difficulty})?",
+                "options": [
+                  "Varianta A",
+                  "Varianta B",
+                  "Varianta C",
+                  "Varianta D"
+                ]
+            })
+
+        return Response({ "questions": questions })

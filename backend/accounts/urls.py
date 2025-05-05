@@ -22,6 +22,10 @@ urlpatterns = [
     path('chats/<int:chat_id>/messages/',views.ChatMessageView.as_view(), name='chat_messages'),
     path('chats/create/', views.ChatCreateView.as_view(), name='chat_create'),
     path('documents/',views.DocumentListView.as_view(), name='documents' ),
-    path('documents/add/', views.DocumentAddView.as_view(), name='document_add')
-
+    path('documents/add/', views.DocumentAddView.as_view(), name='document_add'),
+    path(
+      'chats/<int:chat_id>/generate-quiz/',
+      views.QuizGenerateView.as_view(),
+      name='generate_quiz'
+    ),
 ]

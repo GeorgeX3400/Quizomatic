@@ -19,11 +19,17 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from accounts.views import QuizGenerateView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     # Include rutele din accounts cu prefixul gol
     path('', include('accounts.urls')),
+    path(
+      'chats/<int:chat_id>/generate-quiz/',
+      QuizGenerateView.as_view(),
+      name='generate_quiz'
+    ),
 ]
 
 if settings.DEBUG:
