@@ -49,3 +49,8 @@ class ChatSerializer(serializers.ModelSerializer):
     def create(self, data):
         chat = Chat.objects.create(**data)
         return chat
+
+class ChatMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model  = ChatMessage
+        fields = ['id','role','content','timestamp']

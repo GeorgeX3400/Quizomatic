@@ -19,7 +19,9 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Refresh token
     path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('chats/', views.ChatsView.as_view(), name='chats'),
+    path('chats/<int:chat_id>/messages/',views.ChatMessageView.as_view(), name='chat_messages'),
     path('chats/create/', views.ChatCreateView.as_view(), name='chat_create'),
     path('documents/',views.DocumentListView.as_view(), name='documents' ),
     path('documents/add/', views.DocumentAddView.as_view(), name='document_add')
+
 ]

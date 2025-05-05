@@ -11,6 +11,11 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 import io
 from django.middleware.csrf import get_token
+import subprocess
+from .models import Chat, ChatMessage
+from .serializers import ChatMessageSerializer
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -76,6 +81,7 @@ class ChatCreateView(generics.CreateAPIView):
         serializer.save(user=self.request.user)
 
 
+
 class DocumentAddView(generics.CreateAPIView):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
@@ -101,4 +107,66 @@ class DocumentListView(generics.ListAPIView):
     def get_queryset(self):
         return Document.objects.filter(chat__user=self.request.user)
 
+class ChatMessageView(APIView):
+    permission_classes = [IsAuthenticated]
 
+    def get(self, request, chat_id):
+        """
+        List all messages in a chat (user + assistant), ordered by timestamp.
+        """
+        chat = get_object_or_404(Chat, id=chat_id, user=request.user)
+        msgs = chat.messages.order_by('timestamp')
+        serializer = ChatMessageSerializer(msgs, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, chat_id):
+        """
+        Save the user message, call Ollama to generate an assistant reply,
+        save it, and return it.
+        """
+        chat = get_object_or_404(Chat, id=chat_id, user=request.user)
+        user_text = request.data.get('message', '').strip()
+        if not user_text:
+            return Response({'detail': 'No message provided.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # 1) Save user message
+        ChatMessage.objects.create(
+            chat=chat,
+            role='user',
+            content=user_text
+        )
+
+        # 2) Call Ollama Chat Completions API
+
+        import requests
+
+        try:
+            ollama_resp = requests.post(
+                "http://127.0.0.1:11434/v1/chat/completions",
+                json={
+                    "model": "qwen3:8B",
+                    "messages": [
+                        { "role": "system",    "content": "You are a helpful assistant." },
+                        { "role": "user",      "content": user_text }
+                    ]
+                },
+                timeout=60
+            )
+            ollama_resp.raise_for_status()
+            payload = ollama_resp.json()
+            assistant_text = payload["choices"][0]["message"]["content"]
+        except Exception as e:
+            return Response(
+                {'detail': 'LLM generation error', 'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        # 3) Save assistant message
+        ChatMessage.objects.create(
+            chat=chat,
+            role='assistant',
+            content=assistant_text
+        )
+
+        # 4) Return the generated reply
+        return Response({'reply': assistant_text})

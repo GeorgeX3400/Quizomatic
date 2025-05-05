@@ -4,7 +4,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import MainPage from './pages/MainPage';
 import CreateChatPage from './pages/CreateChatPage';
-
+import ChatPage from './pages/ChatPage';
 import './App.css'
 
 
@@ -22,6 +22,8 @@ function App() {
       <Route path='/login' element={<LoginPage/>}></Route>
       <Route path='/register' element={<RegisterPage/>}></Route>
       <Route path='/create-chat' element={<CreateChatPage/>}></Route>
+      <Route path="/chats/:chatId" element={<ChatPage/>}/>
+      <Route path="*"                 element={<MainPage />} />
     </Routes>
   </Router>
   ;
