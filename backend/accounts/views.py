@@ -105,7 +105,11 @@ class DocumentListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Document.objects.filter(chat__user=self.request.user)
+        qs = Document.objects.filter(chat__user=self.request.user)
+        chat_id = self.request.query_params.get('chat_id')
+        if chat_id:
+            qs = qs.filter(chat__id=chat_id)
+        return qs
 
 class ChatMessageView(APIView):
     permission_classes = [IsAuthenticated]
