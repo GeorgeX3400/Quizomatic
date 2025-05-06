@@ -158,14 +158,32 @@ class ChatMessageView(APIView):
         # 2) Call Ollama Chat Completions API
         import requests
         try:
+            messages = [
+                {
+                "role": "system",
+                "content": "You are a helpful assistant."
+                }
+            ]
+
+            # 2b) Pull every past turn from the DB, ordered chronologically
+            past = ChatMessage.objects.filter(chat=chat).order_by("timestamp")
+            for msg in past:
+                # msg.role is 'user' or 'assistant'
+                # msg.content has already been cleaned in your GET
+                messages.append({
+                    "role": msg.role,
+                    "content": msg.content
+                })
+
+            # 2c) Finally add the *new* user message
+            messages.append({"role": "user", "content": user_text})
+
+            # 3) SEND to Ollama with the full context
             ollama_resp = requests.post(
                 "http://127.0.0.1:11434/v1/chat/completions",
                 json={
-                    "model": "qwen3:4B",
-                    "messages": [
-                        {"role": "system",  "content": "You are a helpful assistant."},
-                        {"role": "user",    "content": user_text}
-                    ]
+                    "model": "qwen3:8B",
+                    "messages": messages
                 },
                 timeout=60
             )
@@ -210,7 +228,7 @@ class QuizGenerateView(APIView):
             f"Generate a quiz of {difficulty} difficulty with {num_q} questions. "
             "The questions should be either multiple choice (\"question\": 'the question', \"options\": [o1, o2, o3, o4], \"answer\": o_) "
             "or true/false style (\"question\": 'a statement', \"answer\": true/false). "
-            "Create the quiz in JSON format, having the objects in a list. Do not add any additional text in the response (or in the options), I want only the JSON."
+            "Create the quiz in a simple text format, without using any emojis. Do not add any additional text in the response (or in the options), I want only the JSON."
         )
 
         # 4) Call Ollama Chat Completions API
