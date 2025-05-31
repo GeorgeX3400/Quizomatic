@@ -257,7 +257,7 @@ class ChatMessageView(APIView):
         # 4) Return the cleaned reply
         return Response({'reply': assistant_text})
     
-
+import json
 import requests
 class QuizGenerateView(APIView):
     permission_classes = [IsAuthenticated]
