@@ -12,6 +12,7 @@ venv/
 
 # Node.js specific
 node_modules/
+media_files/
 
 # Build outputs
 dist/
