@@ -15,3 +15,9 @@ Quizomatic este o aplicație ce are ca scop eficientizarea procesului de învă�
 - **9. Ca utilizator**, vreau să primesc feedback imediat pentru răspunsurile mele astfel încât să învăț din greșeli.
 - **10. Ca utilizator**, vreau ca sistemul să evidențieze zonele mele de slăbiciune pe baza performanței mele la teste pentru a mă concentra pe îmbunătățirea anumitor subiecte.
 - **11. Ca utilizator**, vreau să revizuiesc explicații detaliate pentru fiecare întrebare după ce termin testul astfel încât să îmi îmbunătățesc cunoștințele.
+
+## Diagrame UML
+
+Diagramele UML pentru proiect se găsesc mai jos:
+ - [Diagrama conceptuală pentru baza de date](https://www.mermaidchart.com/raw/9f2a1368-f6b4-4884-9e9b-b81d6e7ad943?theme=light&version=v0.1&format=svg)
+ - [Diagrama workflow-ului](https://www.mermaidchart.com/raw/c73fab0e-d293-42cc-84c4-8aa928e6eb21?theme=light&version=v0.1&format=svg)
