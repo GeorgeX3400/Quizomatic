@@ -18,14 +18,16 @@ urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Refresh token
     path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
-    path('chats/', views.ChatsView.as_view(), name='chats'),
-    path('chats/<int:chat_id>/messages/',views.ChatMessageView.as_view(), name='chat_messages'),
-    path('chats/create/', views.ChatCreateView.as_view(), name='chat_create'),
+    path('api/chats/', views.ChatsView.as_view(), name='chats'),
+    path('api/chats/<int:chat_id>/messages/',views.ChatMessageView.as_view(), name='chat_messages'),
+    path('api/chats/create/', views.ChatCreateView.as_view(), name='chat_create'),
     path('documents/',views.DocumentListView.as_view(), name='documents' ),
     path('documents/add/', views.DocumentAddView.as_view(), name='document_add'),
+    path("api/chats/<int:chat_id>/submit-quiz/", views.SubmitQuizView.as_view(), name="submit_quiz"),
     path(
-      'chats/<int:chat_id>/generate-quiz/',
+      'api/chats/<int:chat_id>/generate-quiz/',
       views.QuizGenerateView.as_view(),
       name='generate_quiz'
     ),
+    path('api/chats/<int:chat_id>/quiz-tips/', views.QuizTipsView.as_view(), name='quiz_tips'),
 ]
