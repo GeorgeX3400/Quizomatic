@@ -1,0 +1,24 @@
+/* frontend/src/components/UploadDocumentPage.css */
+
+.upload-form {
+  margin-top: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.upload-input {
+  font-size: 1rem;
+  color: var(--color-text-primary);
+}
+
+.upload-button {
+  /* .btn-primary provides background and hover */
+}
+
+/* Eroare sub formular */
+.error-message {
+  color: red;
+  font-size: 0.9rem;
+  margin-top: var(--spacing-sm);
+}

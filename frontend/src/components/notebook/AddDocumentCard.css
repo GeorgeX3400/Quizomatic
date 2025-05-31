@@ -1,0 +1,22 @@
+.add-document-card {
+  display: block;
+  background-color: var(--color-secondary);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-md);
+  box-shadow: var(--box-shadow);
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.add-document-card h3 {
+  margin: 0;
+  color: var(--color-primary);
+  font-weight: var(--font-weight-medium);
+  font-size: 1.125rem;
+}
+
+.add-document-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}

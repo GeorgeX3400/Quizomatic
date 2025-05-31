@@ -1,68 +1,72 @@
-import React from "react";
-import { Link, Navigate } from "react-router";
-import { useState } from 'react';
+// frontend/src/pages/RegisterPage.jsx
+
+import React, { useState } from "react";
+import { Link, Navigate } from "react-router-dom";
 import axios from "axios";
+import "./Auth.css";
 
 function RegisterPage() {
   const [data, setData] = useState({
-    'username': '',
-    'password': '',
-    'email': '',
+    username: "",
+    password: "",
+    email: "",
   });
   const [redirect, setRedirect] = useState(false);
+  const [error, setError] = useState(null);
 
   function handleChange(e) {
     const { name, value } = e.target;
     setData((prevData) => ({
       ...prevData,
-      [name]: value
+      [name]: value,
     }));
   }
 
   async function registerUser(event) {
-    event.preventDefault(); 
+    event.preventDefault();
+    setError(null);
     try {
-      const registerResponse = await axios.post('http://localhost:8000/v2/register/', {
-        ...data
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
+      const registerResponse = await axios.post(
+        "http://localhost:8000/v2/register/",
+        {
+          ...data,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      });
+      );
 
-      if (registerResponse.status === 201) { 
-        const tokenResponse = await axios.post('http://localhost:8000/token/', {
+      if (registerResponse.status === 201) {
+        const tokenResponse = await axios.post("http://localhost:8000/token/", {
           username: data.username,
-          password: data.password
+          password: data.password,
         });
 
-        // Store the JWT tokens in localStorage
-        localStorage.setItem('accessToken', tokenResponse.data.access);
-        localStorage.setItem('refreshToken', tokenResponse.data.refresh);
-
-        setRedirect(true); // Update redirect state on successful registration
+        localStorage.setItem("accessToken", tokenResponse.data.access);
+        localStorage.setItem("refreshToken", tokenResponse.data.refresh);
+        setRedirect(true);
       } else {
-        console.error('Registration failed:', registerResponse.data);
+        console.error("Registration failed:", registerResponse.data);
+        setError("Registration failed. Please try again.");
       }
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error("Registration error:", error);
+      setError("An error occurred during registration.");
     }
   }
 
-  const handleSubmit = async (event) => {
-    event.preventDefault(); 
-    await registerUser(event); 
-  };
-
   if (redirect) {
-    return <Navigate to='/login/'/>;
+    return <Navigate to="/login" />;
   }
 
   return (
     <div className="auth-container">
       <div className="auth-card">
         <h2 className="auth-title">Register</h2>
-        <form onSubmit={handleSubmit}>
+        {error && <p className="error-message">{error}</p>}
+        <form onSubmit={registerUser} className="auth-form">
           <div className="form-group">
             <label>Username</label>
             <input
@@ -71,6 +75,7 @@ function RegisterPage() {
               placeholder="Enter your username"
               className="auth-input"
               onChange={handleChange}
+              required
             />
           </div>
 
@@ -79,31 +84,37 @@ function RegisterPage() {
             <input
               type="email"
               name="email"
+              placeholder="Enter your email"
               className="auth-input"
               onChange={handleChange}
-              placeholder="Enter your email"
+              required
             />
           </div>
+
           <div className="form-group">
             <label>Password</label>
             <input
               type="password"
               name="password"
+              placeholder="Create a password"
               className="auth-input"
               onChange={handleChange}
-              placeholder="Create a password"
+              required
             />
           </div>
+
           <div className="form-group">
             <label>Confirm Password</label>
             <input
               type="password"
               name="confirm-password"
-              className="auth-input"
               placeholder="Confirm your password"
+              className="auth-input"
+              required
             />
           </div>
-          <button className="auth-button">
+
+          <button type="submit" className="auth-button">
             Register
           </button>
         </form>

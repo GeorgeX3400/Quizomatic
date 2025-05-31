@@ -16,7 +16,7 @@ from datetime import datetime
 import re
 import json
 import requests
-
+import traceback
 from .forms import CustomUserCreationForm, CustomLoginForm
 from .serializers import (
     CustomUserSerializer,
@@ -99,56 +99,69 @@ class ChatCreateView(generics.CreateAPIView):
 
 # ─── API: Document Upload & List ────────────────────────────────────
 
+
 class DocumentAddView(generics.CreateAPIView):
+    """
+    API endpoint pentru încărcarea unui document în chat.
+    După salvare, se apelează OCR-ul și se păstrează rezultatul.
+    """
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser]
 
     def perform_create(self, serializer):
-        # 1) Require chat_id
+        # 1) Verificăm că a venit chat_id
         chat_id = self.request.data.get("chat_id")
         if not chat_id:
             raise serializers.ValidationError({"chat_id": "This field is required."})
 
-        # 2) Ensure that chat belongs to self.request.user
+        # 2) Verificăm că chat-ul aparține user-ului curent
         chat = get_object_or_404(Chat, id=chat_id, user=self.request.user)
 
-        # 3) Ensure a file was uploaded
+        # 3) Verificăm că s-a încărcat un fișier
         file_obj = self.request.FILES.get("file")
         if not file_obj:
             raise serializers.ValidationError({"file": "No file was submitted."})
 
-        # 4) Save the Document (Django will write file under MEDIA_ROOT/<username>/uploaded/…)
+        # 4) Salvăm obiectul Document (Django va plasa fișierul în MEDIA_ROOT conform setării `upload_to`)
         doc = serializer.save(
             chat=chat,
             name=file_obj.name,
             content_type=file_obj.content_type
         )
 
-        # 5) Run OCR on that file (returns list of page-dicts)
-        file_path = Path(settings.MEDIA_ROOT) / doc.file.name
+        # 5) Obținem calea absolută către fișierul salvat
+        #    Django stochează într-un câmp FileField un atribut `.path` care e calea absolută
+        file_path = Path(doc.file.path)  # <— este important să folosim .file.path
+
+        # 6) Rulăm OCR și prindem eventuale erori
         try:
             pages = extract_pages(str(file_path))
-        except Exception:
+        except Exception as e:
+            # Logăm în consolă tot stacktrace-ul ca să vedem unde pică OCR-ul
+            print("=== [DocumentAddView] Eroare în extract_pages ===")
+            traceback.print_exc()
             pages = []
 
-        # 6) Store extracted JSON + plain text in Document model
+        # 7) Salvăm rezultatul JSON și extragem textul simplu
         doc.extracted_json = pages
-        doc.extracted_text = "\n\n".join(p["text"] for p in pages)
+        doc.extracted_text = "\n\n".join(p.get("text", "") for p in pages)
         doc.save()
 
-        # 7) Write the JSON to MEDIA_ROOT/<username>/processed/
+        # 8) Creăm subfolderul processed/<username>/ dacă nu există
         username = chat.user.username
         processed_dir = Path(settings.MEDIA_ROOT) / username / "processed"
         processed_dir.mkdir(parents=True, exist_ok=True)
 
+        # 9) Generăm un nume pentru fișierul JSON + timestamp
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        base_name = Path(doc.name).stem  # e.g. "mydoc"
+        base_name = Path(doc.name).stem  # ex: "document_22_20250531"
         out_filename = f"{base_name}_pages_{timestamp}.json"
         out_path = processed_dir / out_filename
-        write_json_pages(pages, out_path)
 
+        # 10) Scriem lista de pagini ca JSON în acest fișier
+        write_json_pages(pages, out_path)
 
 class DocumentListView(generics.ListAPIView):
     serializer_class = DocumentSerializer
@@ -237,29 +250,33 @@ class QuizGenerateView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, chat_id):
-        """
-        POST /api/chats/<chat_id>/generate-quiz/
-        Body: { num_questions: int, difficulty: str, question_type: "multiple"| "truefalse" }
-
-        Returns a new ChatMessage whose content is the generated JSON string.
-        """
         chat = get_object_or_404(Chat, id=chat_id, user=request.user)
 
         # 1) Read parameters
         num_q = int(request.data.get("num_questions", 5))
         difficulty = request.data.get("difficulty", "easy")
-
         question_type = request.data.get("question_type", "multiple")
         if question_type not in ("multiple", "truefalse"):
             question_type = "multiple"
 
         # 2) Build system + document context
         messages = [{"role": "system", "content": "You are a helpful assistant."}]
+
+        # ─── AICI SCHIMBĂM condiția ─────────────────────────────
+        #    (în loc de `if getattr(...)` punem `if doc.extracted_json is not None`)
         for doc in chat.documents.all():
-            if getattr(doc, "extracted_json", None):
-                json_str = json.dumps(doc.extracted_json, ensure_ascii=False)
+            if doc.extracted_json is not None:
+                # Dacă lista e goală, json_str va fi "[]"; dacă nu, va conține
+                # textul OCR‐at page by page
+                try:
+                    json_str = json.dumps(doc.extracted_json, ensure_ascii=False)
+                except Exception:
+                    # Ca să nu se oprească totul dacă extracted_json nu e valid JSON
+                    json_str = "[]"
+
                 system_msg = f"Document '{doc.name}' OCR contents (pages):\n{json_str}"
                 messages.append({"role": "system", "content": system_msg})
+        # ───────────────────────────────────────────────────────
 
         # 3) Create the user prompt depending on question_type
         if question_type == "multiple":
@@ -273,14 +290,13 @@ class QuizGenerateView(APIView):
                 "Do not include any true/false questions, and do not add any extra text—output only the JSON array."
             )
         else:
-            # True/False prompt
             quiz_prompt = (
                 f"Generate a quiz of {difficulty} difficulty with {num_q} questions. "
                 "Each question must be strictly True/False (no multiple-choice). "
                 "Respond in JSON only, with each array element formatted as:\n"
                 "{ \"question\": \"Your statement here\", \"answer\": true_or_false }.\n"
                 "Use lowercase `true` or `false` for the answer. "
-                "Do not include any multiple-choice questions, and do not add any extra text—output only the JSON array."
+                "Do not include any multiple-choice questions, și nu adăuga text suplimentar—output doar JSON array."
             )
 
         messages.append({"role": "user", "content": quiz_prompt})
@@ -296,18 +312,19 @@ class QuizGenerateView(APIView):
             payload = ollama_resp.json()
             raw_quiz = payload["choices"][0]["message"]["content"]
         except Exception as e:
-            return Response({"detail": "LLM generation error", "error": str(e)},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # Într-un caz real, ai log în consolă: traceback.print_exc()
+            return Response({
+                "detail": "LLM generation error",
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        # 5) Strip any <think>…</think> tags
+        # 5) Strip out any <think>…</think> tags
         quiz_text = re.sub(r"^.*?</think>\s*", "", raw_quiz, flags=re.DOTALL).strip()
 
-        # 6) Save as a ChatMessage and return it
+        # 6) Save as a ChatMessage și returnează JSON-ul
         quiz_msg = ChatMessage.objects.create(chat=chat, role="assistant", content=quiz_text)
         serializer = ChatMessageSerializer(quiz_msg)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
 # ─── API: Submit Quiz Answers ────────────────────────────────────────
 
 class SubmitQuizView(APIView):

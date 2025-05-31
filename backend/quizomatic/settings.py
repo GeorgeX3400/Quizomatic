@@ -127,13 +127,20 @@ CSRF_COOKIE_HTTPONLY = True
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
+    "http://localhost:5173",    # dacă frontend rulează pe 5173
+    "http://127.0.0.1:5173",
+    "http://localhost:5174",    # dacă frontend rulează pe 5174
+    "http://127.0.0.1:5174",
 ]
 
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5174",
 ]
+
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 

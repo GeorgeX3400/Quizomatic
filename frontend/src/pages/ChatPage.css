@@ -1,0 +1,250 @@
+/* frontend/src/pages/ChatPage.css */
+
+/* Container și titlu */
+.chat-page-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.chat-title {
+  text-align: center;
+  font-size: 1.5rem;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+/* ─── Pane-ul de mesaje ───────────────── */
+.message-pane {
+  background-color: var(--color-background-chat);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-md);
+  height: 400px;
+  overflow-y: auto;
+  box-shadow: var(--box-shadow);
+  display: flex;
+  flex-direction: column;
+}
+
+.message-item {
+  display: flex;
+  margin-bottom: var(--spacing-sm);
+}
+
+.message-item.user {
+  justify-content: flex-end;
+}
+
+.message-item.assistant {
+  justify-content: flex-start;
+}
+
+.message-bubble {
+  max-width: 70%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius);
+  font-size: 0.95rem;
+  line-height: 1.4;
+  position: relative;
+}
+
+.message-bubble.user {
+  background-color: var(--color-primary);
+  color: var(--color-text-on-primary);
+  border-bottom-right-radius: 0;
+}
+
+.message-bubble.user::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: -8px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid var(--color-primary);
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+}
+
+.message-bubble.assistant {
+  background-color: var(--color-accent);
+  color: var(--color-text-on-primary);
+  border-bottom-left-radius: 0;
+}
+
+.message-bubble.assistant::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: -8px;
+  width: 0;
+  height: 0;
+  border-right: 8px solid var(--color-accent);
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+}
+
+.message-bubble.typing {
+  font-style: italic;
+  opacity: 0.7;
+}
+
+/* Mesaj de eroare */
+.error-message {
+  color: red;
+  font-size: 0.9rem;
+  margin-top: var(--spacing-sm);
+  text-align: center;
+}
+
+/* ─── Formular de trimitere a mesajelor ───────────────── */
+.send-form {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+  margin-top: var(--spacing-md);
+}
+
+.send-input {
+  flex: 1;
+  padding: var(--spacing-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.send-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 4px var(--color-primary);
+}
+
+.send-button {
+  /* folosește deja .btn-primary */
+}
+
+/* ─── Quiz Generation ───────────────── */
+.quiz-generation {
+  background-color: var(--color-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-md);
+  box-shadow: var(--box-shadow);
+}
+
+.quiz-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  align-items: flex-end;
+}
+
+.quiz-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+.quiz-input-group label {
+  font-weight: var(--font-weight-medium);
+}
+
+.quiz-input-group input,
+.quiz-input-group select {
+  padding: var(--spacing-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.quiz-input-group input:focus,
+.quiz-input-group select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 4px var(--color-primary);
+}
+
+/* ─── Întrebările quiz ───────────────── */
+.quiz-questions-container {
+  background-color: #FFFFFF;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-md);
+  box-shadow: var(--box-shadow);
+  margin-top: var(--spacing-lg);
+}
+
+.quiz-questions-form ol {
+  list-style: decimal inside;
+  margin-left: var(--spacing-md);
+}
+
+.quiz-question-item {
+  margin-bottom: var(--spacing-md);
+}
+
+.quiz-question-text {
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--spacing-sm);
+}
+
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin-left: var(--spacing-xs);
+}
+
+.quiz-option-label {
+  display: flex;
+  align-items: center;
+  font-size: 0.95rem;
+}
+
+.quiz-option-label input[type="radio"] {
+  margin-right: var(--spacing-sm);
+}
+
+/* Butonul “Confirmă răspunsurile” */
+.btn-success {
+  margin-top: var(--spacing-md);
+}
+
+/* ─── Link de descărcare & Tips ───────────────── */
+.quiz-actions {
+  margin-top: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  align-items: flex-start;
+}
+
+.download-link {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+}
+
+.download-link:hover {
+  text-decoration: underline;
+}
+
+.btn-warning {
+  width: fit-content;
+}
+
+/* ─── Responsive ───────────────── */
+@media (max-width: 768px) {
+  .message-bubble {
+    max-width: 90%;
+  }
+  .quiz-form {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+}

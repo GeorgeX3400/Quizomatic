@@ -1,12 +1,14 @@
-import { useState } from 'react';
-import { Link, Navigate } from 'react-router';
-import axios from 'axios';
-import { storeTokens } from '../assets/auth.js';
+// frontend/src/pages/LoginPage.jsx
+
+import { useState } from "react";
+import { Link, Navigate } from "react-router-dom";
+import axios from "axios";
+import "./Auth.css";
 
 function LoginPage() {
   const [credentials, setCredentials] = useState({
-    username: '',
-    password: '',
+    username: "",
+    password: "",
   });
   const [redirect, setRedirect] = useState(false);
   const [error, setError] = useState(null);
@@ -15,7 +17,7 @@ function LoginPage() {
     const { name, value, type, checked } = e.target;
     setCredentials((prevCredentials) => ({
       ...prevCredentials,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -25,27 +27,25 @@ function LoginPage() {
 
     try {
       const response = await axios.post(
-        'http://localhost:8000/token/',
+        "http://localhost:8000/token/",
         {
           username: credentials.username,
           password: credentials.password,
         },
         {
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
       const { access, refresh } = response.data;
-      // Store tokens in localStorage or sessionStorage based on stay_logged_in
-      const storage = sessionStorage;
-      storage.setItem('access_token', access);
-      storage.setItem('refresh_token', refresh);
-      console.log('Login successful, tokens stored:', { access, refresh });
+      // Store tokens in sessionStorage
+      sessionStorage.setItem("access_token", access);
+      sessionStorage.setItem("refresh_token", refresh);
       setRedirect(true);
     } catch (error) {
-      console.error('Login failed:', error.response?.data || error.message);
-      setError('Invalid username or password');
+      console.error("Login failed:", error.response?.data || error.message);
+      setError("Invalid username or password");
     }
   }
 
@@ -58,7 +58,7 @@ function LoginPage() {
       <div className="auth-card">
         <h2 className="auth-title">Login</h2>
         {error && <p className="error-message">{error}</p>}
-        <form onSubmit={login}>
+        <form onSubmit={login} className="auth-form">
           <div className="form-group">
             <label htmlFor="username">Username</label>
             <input
@@ -90,7 +90,7 @@ function LoginPage() {
           </button>
         </form>
         <p className="auth-footer">
-          Don't have an account?{' '}
+          Don't have an account?{" "}
           <Link to="/register" className="auth-link">
             Register here
           </Link>
