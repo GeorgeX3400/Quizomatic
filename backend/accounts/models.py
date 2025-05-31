@@ -31,31 +31,26 @@ class ChatMessage(models.Model):
 
 documents_storage = FileSystemStorage(location=settings.DOCUMENTS_ROOT)
 
+
 def document_upload_path(instance, filename):
     """
-    DOCUMENTS/<user_id>/document_<userId>_<YYYYMMDD><ext>
+    Upload files to:
+      MEDIA_ROOT/<username>/uploaded/document_<userId>_<YYYYMMDD><ext>
     """
     user_id  = instance.chat.user.id
     date_str = datetime.now().strftime('%Y%m%d')
     base, ext = os.path.splitext(filename)
     new_name = f"document_{user_id}_{date_str}{ext}"
-    # subfolder per user
-    return os.path.join(str(user_id), new_name)
-
-file = models.FileField(
-  storage=documents_storage,
-  upload_to=document_upload_path
-)
+    return os.path.join(instance.chat.user.username, "uploaded", new_name)
 
 class Document(models.Model):
     chat          = models.ForeignKey(Chat, related_name='documents', on_delete=models.CASCADE)
-    name          = models.CharField(max_length=255)               # original filename
-    content_type  = models.CharField(max_length=100)               # e.g. 'image/png' or 'application/pdf'
-    file          = models.FileField(upload_to=user_chat_directory_path)
-    extracted_text= models.TextField(blank=True)                   # OCR’d text goes here
+    name          = models.CharField(max_length=255)   # original filename
+    content_type  = models.CharField(max_length=100)   # MIME type (e.g. 'application/pdf')
+    file          = models.FileField(upload_to=document_upload_path)
+    extracted_text= models.TextField(blank=True)       # OCR’d text goes here
     uploaded_at   = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.chat.user.username}/{self.name}"
-    
+        return f"{self.chat.user.username}/uploaded/{self.name}"
 
