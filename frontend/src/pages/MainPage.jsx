@@ -16,7 +16,7 @@ const MainPage = () => {
   const fetchChats = async () => {
     try {
       const token = await getAccessToken();
-      const res   = await axios.get('http://localhost:8000/chats/', {
+      const res   = await axios.get('http://localhost:8000/api/chats/', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setChats(res.data);
@@ -36,7 +36,7 @@ const MainPage = () => {
     setError(null);
     try {
       const token = await getAccessToken();
-      await axios.post('http://localhost:8000/chats/create/', { name: chatName }, {
+      await axios.post('http://localhost:8000/api/chats/create/', { name: chatName }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setChatName('');

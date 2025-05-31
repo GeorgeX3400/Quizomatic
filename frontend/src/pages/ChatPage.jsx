@@ -10,25 +10,33 @@ import { useParams } from "react-router-dom";
 export default function ChatPage() {
   const { chatId } = useParams();
 
-  const [messages, setMessages]       = useState([]);
-  const [docs, setDocs]               = useState([]);
-  const [isTyping, setIsTyping]       = useState(false);
-  const [input, setInput]             = useState("");
-  const [error, setError]             = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [docs, setDocs] = useState([]);
+  const [isTyping, setIsTyping] = useState(false);
+  const [input, setInput] = useState("");
+  const [error, setError] = useState(null);
 
-  // ––– Quiz state –––
-  const [numQuestions, setNumQuestions]       = useState(5);
-  const [difficulty, setDifficulty]           = useState("easy");
-  const [quizQuestions, setQuizQuestions]     = useState([]); 
-  const [selectedAnswers, setSelectedAnswers] = useState({}); 
-  const [savedQuizPath, setSavedQuizPath]     = useState(null);
+  // ─── Quiz state ─────────────
+  const [numQuestions, setNumQuestions] = useState(5);
+  const [difficulty, setDifficulty] = useState("easy");
 
-  // ––– Whenever a new document is uploaded, prepend it –––
+  // NEW: track quiz type ("multiple" or "truefalse")
+  const [questionType, setQuestionType] = useState("multiple");
+
+  // This will store an array of { question: string, options: [string] }
+  const [quizQuestions, setQuizQuestions] = useState([]);
+  const [selectedAnswers, setSelectedAnswers] = useState({});
+
+  // After the user confirms answers, store the saved file URL
+  const [savedQuizPath, setSavedQuizPath] = useState(null);
+
+  // ─── This was missing: define handleDocUploadSuccess here ─────────────
+  // Whenever UploadDocumentPage calls onSuccess, we prepend the new doc into `docs`.
   const handleDocUploadSuccess = (doc) => {
     setDocs((prev) => [doc, ...prev]);
   };
 
-  // ––– On mount: fetch existing messages & docs –––
+  // ─── Fetch existing messages & docs ─────────────
   useEffect(() => {
     (async () => {
       try {
@@ -57,7 +65,7 @@ export default function ChatPage() {
     })();
   }, [chatId]);
 
-  // ––– Standard “send user message to chat” –––
+  // ─── Send a normal chat message ─────────────
   const sendMessage = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -75,13 +83,15 @@ export default function ChatPage() {
         { message: input },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      const cleanReply = res.data.reply.replace(
-        /<think>[\s\S]*?<\/think>/gi,
-        ""
-      ).trim();
+      const cleanReply = res.data.reply
+        .replace(/<think>[\s\S]*?<\/think>/gi, "")
+        .trim();
 
       setIsTyping(false);
-      setMessages((m) => [...m, { role: "assistant", content: cleanReply }]);
+      setMessages((m) => [
+        ...m,
+        { role: "assistant", content: cleanReply },
+      ]);
     } catch (e) {
       setIsTyping(false);
       console.error(e);
@@ -89,7 +99,7 @@ export default function ChatPage() {
     }
   };
 
-  // ––– Generate quiz via LLM –––
+  // ─── Generate quiz via LLM ─────────────
   const handleGenerateQuiz = async (e) => {
     e.preventDefault();
     setError(null);
@@ -98,14 +108,19 @@ export default function ChatPage() {
       const token = await getAccessToken();
       const res = await axios.post(
         `http://localhost:8000/api/chats/${chatId}/generate-quiz/`,
-        { num_questions: numQuestions, difficulty },
+        {
+          num_questions: numQuestions,
+          difficulty,
+          question_type: questionType, // ← send the chosen type
+        },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // res.data is the serialized ChatMessage that the backend created:
-      //    { id: 123, role: "assistant", content: "<JSON string>", timestamp: "…" }
+      // The backend returns a ChatMessage object, e.g.:
+      // { id: 42, role: "assistant", content: "<JSON string>", timestamp: "…" }
       const quizJsonString = res.data.content;
 
+      // Try to parse it
       let parsed = null;
       try {
         parsed = JSON.parse(quizJsonString);
@@ -116,12 +131,18 @@ export default function ChatPage() {
       }
 
       // Normalize into an array of question‐objects:
+      // If we get an array directly, use it. If there's a top-level {quiz: [...]}, unwrap it.
       let questionArray = [];
       if (Array.isArray(parsed)) {
         questionArray = parsed;
-      } else if (parsed && typeof parsed === "object" && Array.isArray(parsed.quiz)) {
+      } else if (
+        parsed &&
+        typeof parsed === "object" &&
+        Array.isArray(parsed.quiz)
+      ) {
         questionArray = parsed.quiz;
       } else if (parsed && typeof parsed === "object" && parsed.question) {
+        // Single‐object fallback
         questionArray = [parsed];
       } else {
         console.error("Unexpected quiz format:", parsed);
@@ -129,18 +150,33 @@ export default function ChatPage() {
         return;
       }
 
-      const normalized = questionArray.map((qObj) => ({
-        question: qObj.question ?? "No question text",
-        options: Array.isArray(qObj.options) ? qObj.options : [],
-      }));
+      // Now build our “normalized” version so each element definitely has an `options` array.
+      // If the backend returned {question, options: [...]}, we keep that.
+      // If it returned {question, answer:true/false} (no options array), we force options = ["true","false"].
+      const normalized = questionArray.map((qObj) => {
+        if (Array.isArray(qObj.options)) {
+          // multiple‐choice: keep as‐is
+          return {
+            question: qObj.question ?? "No question text",
+            options: qObj.options,
+          };
+        } else {
+          // true/false case: no "options" key, but they gave us an answer field
+          // So we force options to be ["true","false"].
+          return {
+            question: qObj.question ?? "No question text",
+            options: ["true", "false"],
+          };
+        }
+      });
 
-      // 1) Push the raw JSON bubble into chat history:
+      // 1) Push the raw JSON bubble into chat history so the user sees it
       setMessages((prev) => [
         ...prev,
         { role: "assistant", content: quizJsonString },
       ]);
 
-      // 2) Store the parsed array for radio buttons, etc.
+      // 2) Store the parsed array for rendering radio‐buttons
       setQuizQuestions(normalized);
       setSelectedAnswers({});
       setSavedQuizPath(null);
@@ -150,7 +186,7 @@ export default function ChatPage() {
     }
   };
 
-  // ––– When user picks an option for question index –––
+  // ─── When user picks an option for question `index` ─────────────
   const handleOptionChange = (index, optionValue) => {
     setSelectedAnswers((prev) => ({
       ...prev,
@@ -158,7 +194,7 @@ export default function ChatPage() {
     }));
   };
 
-  // ––– “Confirmă răspunsurile” –––
+  // ─── “Confirmă răspunsurile” ─────────────
   const handleSubmitQuiz = async () => {
     setError(null);
     if (Object.keys(selectedAnswers).length !== quizQuestions.length) {
@@ -185,7 +221,7 @@ export default function ChatPage() {
     }
   };
 
-  // ––– NEW: “Tips & Tricks” –––
+  // ─── “Tips & Tricks” ─────────────
   const handleGetTips = async () => {
     setError(null);
 
@@ -211,10 +247,12 @@ export default function ChatPage() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Backend returns the new ChatMessage:
-      // { id: 456, role: "assistant", content: "<tips text>", timestamp: "…" }
+      // Backend returns a ChatMessage object: { id: …, role: "assistant", content: "<tips text>" }
       const tipMsg = res.data;
-      setMessages((prev) => [...prev, { role: tipMsg.role, content: tipMsg.content }]);
+      setMessages((prev) => [
+        ...prev,
+        { role: tipMsg.role, content: tipMsg.content },
+      ]);
     } catch (e) {
       console.error("Error fetching tips:", e.response || e.message);
       setError("Eroare la generarea sfaturilor.");
@@ -227,6 +265,8 @@ export default function ChatPage() {
       <div style={{ marginTop: 60, padding: 20 }}>
         <div style={{ maxWidth: 600, margin: "0 auto" }}>
           <h2>Chat Room</h2>
+
+          {/* ─── Chat message pane ───────────── */}
           <div
             style={{
               border: "1px solid #ccc",
@@ -279,6 +319,7 @@ export default function ChatPage() {
 
           {error && <p style={{ color: "red" }}>{error}</p>}
 
+          {/* ─── Send new chat message ───────────── */}
           <form onSubmit={sendMessage} style={{ marginTop: 10 }}>
             <input
               value={input}
@@ -306,12 +347,14 @@ export default function ChatPage() {
             </button>
           </form>
 
+          {/* ─── Upload Document ───────────── */}
+          {/* Now `handleDocUploadSuccess` is defined, so this won’t error out: */}
           <UploadDocumentPage
             chatId={chatId}
             onSuccess={handleDocUploadSuccess}
           />
 
-          {/* ───── Quiz generation UI ───── */}
+          {/* ─── Quiz generation UI ───────────── */}
           <div
             style={{
               marginTop: 40,
@@ -351,6 +394,21 @@ export default function ChatPage() {
                   <option value="hard">Greu</option>
                 </select>
               </div>
+
+              {/* ── NEW: Question Type Selector ── */}
+              <div>
+                <label>Tip întrebare:</label>
+                <br />
+                <select
+                  value={questionType}
+                  onChange={(e) => setQuestionType(e.target.value)}
+                  style={{ padding: 4 }}
+                >
+                  <option value="multiple">Multiple Choice</option>
+                  <option value="truefalse">True/False</option>
+                </select>
+              </div>
+
               <button
                 type="submit"
                 style={{
@@ -379,6 +437,10 @@ export default function ChatPage() {
                       <li key={index} style={{ marginBottom: 10 }}>
                         <strong>{q.question}</strong>
                         <br />
+                        {/*
+                          If q.options is ["true","false"], we render two radio buttons.
+                          Otherwise, render one radio per option in q.options.
+                        */}
                         {q.options.map((opt, i) => (
                           <label
                             key={i}
@@ -394,7 +456,11 @@ export default function ChatPage() {
                               }
                               style={{ marginRight: 6 }}
                             />
-                            {opt}
+                            {opt === "true"
+                              ? "True"
+                              : opt === "false"
+                              ? "False"
+                              : opt}
                           </label>
                         ))}
                       </li>
@@ -429,7 +495,7 @@ export default function ChatPage() {
                       Descarcă fișierul quiz
                     </a>
 
-                    {/* ── NEW: Tips & Tricks button appears once quiz is submitted ── */}
+                    {/* ── Tips & Tricks ── */}
                     <button
                       onClick={handleGetTips}
                       style={{
@@ -451,36 +517,6 @@ export default function ChatPage() {
               </div>
             )}
           </div>
-          {/* ──────────────────────────────── */}
-
-          <h3>Uploaded Documents</h3>
-          {docs.length === 0 ? (
-            <p style={{ fontStyle: "italic" }}>No documents yet</p>
-          ) : (
-            docs.map((d) => (
-              <div
-                key={d.id}
-                style={{
-                  padding: "8px",
-                  border: "1px solid #ccc",
-                  borderRadius: 4,
-                  marginBottom: 8,
-                }}
-              >
-                <a
-                  href={`http://localhost:8000${d.file}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: "#3A59D1", textDecoration: "none" }}
-                >
-                  {d.name}
-                </a>
-                <span style={{ float: "right", color: "#555" }}>
-                  {new Date(d.uploaded_at).toLocaleDateString()}
-                </span>
-              </div>
-            ))
-          )}
         </div>
       </div>
     </>
