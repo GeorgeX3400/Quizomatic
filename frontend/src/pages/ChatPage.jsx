@@ -1,3 +1,5 @@
+// src/pages/ChatPage.jsx
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Header from '../components/layout/Header';
@@ -13,10 +15,10 @@ export default function ChatPage() {
   const [input, setInput] = useState('');
   const [error, setError] = useState(null);
 
-  // --- Nou: stări pentru quiz ---
-  const [numQuestions, setNumQuestions] = useState(5);
-  const [difficulty,  setDifficulty]   = useState('easy');
-  const [quizQuestions, setQuizQuestions] = useState([]);
+  // --- New: quiz state ---
+  const [numQuestions, setNumQuestions]       = useState(5);
+  const [difficulty,  setDifficulty]          = useState('easy');
+  const [quizQuestions, setQuizQuestions]     = useState([]);
 
   const handleDocUploadSuccess = (doc) => {
     setDocs(prev => [doc, ...prev]);
@@ -37,7 +39,7 @@ export default function ChatPage() {
       }
     })();
 
-    // load documents for this chat
+    // Load documents for this chat
     (async () => {
       try {
         const token = await getAccessToken();
@@ -51,8 +53,6 @@ export default function ChatPage() {
       }
     })();
   }, [chatId]);
-
-
 
   const sendMessage = async (e) => {
     e.preventDefault();
@@ -74,20 +74,20 @@ export default function ChatPage() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       res.data.reply = res.data.reply
-    .replace(/<think>[\s\S]*?<\/think>/gi, '')
-    .trim();
+        .replace(/<think>[\s\S]*?<\/think>/gi, '')
+        .trim();
 
-        setIsTyping(false); 
+      setIsTyping(false); 
       const assistantMsg = { role: 'assistant', content: res.data.reply };
       setMessages((m) => [...m, assistantMsg]);
     } catch (e) {
-        setIsTyping(false); 
+      setIsTyping(false); 
       console.error(e);
       setError('Failed to get reply. Try again.');
     }
   };
 
-  //  generare quiz
+  // --- Modified: quiz generation handler ---
   const handleGenerateQuiz = async (e) => {
     e.preventDefault();
     setError(null);
@@ -98,7 +98,30 @@ export default function ChatPage() {
         { num_questions: numQuestions, difficulty },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setQuizQuestions(res.data.questions);
+
+      // The backend now returns a ChatMessage object, e.g.:
+      // { id, role: "assistant", content: "<JSON-string>", timestamp }
+      // We need to parse res.data.content to get the actual quiz array:
+      const quizJsonString = res.data.content; 
+      let parsed = [];
+      try {
+        parsed = JSON.parse(quizJsonString);
+      } catch (parseErr) {
+        console.error("Error parsing quiz JSON:", parseErr);
+        setError("Failed to parse quiz data.");
+        return;
+      }
+
+      // Now setQuizQuestions to that parsed array
+      setQuizQuestions(parsed);
+
+      // ALSO: append the quiz as a message bubble in the chat itself:
+      const quizMsgBubble = {
+        role: 'assistant',
+        content: quizJsonString
+      };
+      setMessages(prev => [...prev, quizMsgBubble]);
+
     } catch (e) {
       console.error(e);
       setError('Eroare la generarea quiz-ului.');
@@ -239,17 +262,19 @@ export default function ChatPage() {
                   Generează
                 </button>
               </form>
-              {error && <p style={{ color: 'red' }}>{error}</p>}
 
-              {quizQuestions.length > 0 && (
+              {/* Only render if quizQuestions is a non‐empty array */}
+              {quizQuestions && quizQuestions.length > 0 && (
                 <div style={{ marginTop: 20 }}>
                   <h4>Întrebările Quiz-ului:</h4>
                   <ol>
-                    {quizQuestions.map(q => (
-                      <li key={q.id} style={{ marginBottom: 10 }}>
+                    {quizQuestions.map((q, index) => (
+                      <li key={index} style={{ marginBottom: 10 }}>
                         <strong>{q.question}</strong>
                         <ul>
-                          {q.options.map((opt, i) => <li key={i}>{opt}</li>)}
+                          {q.options.map((opt, i) => (
+                            <li key={i}>{opt}</li>
+                          ))}
                         </ul>
                       </li>
                     ))}
@@ -291,5 +316,5 @@ export default function ChatPage() {
         </div>
       </div>
     </>
-  );  
+  );
 }
