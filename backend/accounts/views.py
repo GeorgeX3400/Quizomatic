@@ -19,6 +19,11 @@ from rest_framework.permissions import IsAuthenticated
 import re
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from pathlib import Path
+from django.conf import settings
+
+from .ocr_utils import extract_pages, write_json_pages
+
 
 def register_view(request):
     if request.method == 'POST':
@@ -89,16 +94,56 @@ class DocumentAddView(generics.CreateAPIView):
     parser_classes = [MultiPartParser]
 
     def perform_create(self, serializer):
-        chat_id = self.request.data.get('chat_id')
+                # 1) Validate that chat_id was provided
+        chat_id = self.request.data.get("chat_id")
         if not chat_id:
-            raise serializers.ValidationError({'chat_id': 'This field is required.'})
-            
+            raise serializers.ValidationError({"chat_id": "This field is required."})
+
+        # 2) Ensure the chat belongs to the current user
         chat = get_object_or_404(Chat, id=chat_id, user=self.request.user)
-        file = self.request.FILES.get('file')
-        if not file:
-            raise serializers.ValidationError({'file': 'No file was submitted.'})
-            
-        serializer.save(chat=chat, file=file)
+
+        # 3) Ensure a file was actually uploaded
+        file_obj = self.request.FILES.get("file")
+        if not file_obj:
+            raise serializers.ValidationError({"file": "No file was submitted."})
+
+        # 4) Save the Document instance (Django will write the file to disk under MEDIA_ROOT/<username>/uploaded/…)
+        doc = serializer.save(
+            chat=chat,
+            name=file_obj.name,
+            content_type=file_obj.content_type
+        )
+
+        # 5) Build the absolute filesystem path to the uploaded file
+        #    `doc.file.name` might be something like "alexn/uploaded/mydoc.pdf"
+        file_path = Path(settings.MEDIA_ROOT) / doc.file.name
+
+        # 6) Run OCR on that single file; this returns a list of page‐dicts
+        try:
+            pages = extract_pages(str(file_path))
+        except Exception as e:
+            # If OCR fails for any reason, just store an empty list (or log e if you like)
+            pages = []
+
+        # 7) Save the OCR’d JSON into the Document record
+        doc.extracted_json = pages
+        #    (Optional) also store a flattened text blob:
+        doc.extracted_text = "\n\n".join(p["text"] for p in pages)
+        doc.save()
+
+        # 8) Write a JSON file to MEDIA_ROOT/<username>/processed/
+        username = chat.user.username
+        processed_dir = Path(settings.MEDIA_ROOT) / username / "processed"
+        processed_dir.mkdir(parents=True, exist_ok=True)
+
+        # Name the output file based on the original filename (no extension) + timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        base_name = Path(doc.name).stem  # e.g. "mydoc"
+        out_filename = f"{base_name}_pages_{timestamp}.json"
+        out_path = processed_dir / out_filename
+
+        write_json_pages(pages, out_path)
+
 
 class DocumentListView(generics.ListAPIView):
     serializer_class = DocumentSerializer
@@ -237,7 +282,7 @@ class QuizGenerateView(APIView):
             ollama_resp = requests.post(
                 "http://127.0.0.1:11434/v1/chat/completions",
                 json={
-                    "model": "qwen3:4B",
+                    "model": "qwen3:8B",
                     "messages": [
                         {"role": "system", "content": "You are a helpful assistant."},
                         {"role": "user", "content": prompt}

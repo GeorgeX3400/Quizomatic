@@ -48,6 +48,7 @@ class Document(models.Model):
     name          = models.CharField(max_length=255)   # original filename
     content_type  = models.CharField(max_length=100)   # MIME type (e.g. 'application/pdf')
     file          = models.FileField(upload_to=document_upload_path)
+    extracted_json= models.JSONField(blank=True, null=True)   # will store page‐dicts
     extracted_text= models.TextField(blank=True)       # OCR’d text goes here
     uploaded_at   = models.DateTimeField(auto_now_add=True)
 
