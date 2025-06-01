@@ -7,6 +7,10 @@ import RegisterPage from "./pages/RegisterPage";
 import MainPage from "./pages/MainPage";
 import CreateChatPage from "./pages/CreateChatPage";
 import ChatPage from "./pages/ChatPage";
+import ContactPage from "./pages/ContactPage";
+import AboutPage   from "./pages/AboutPage";
+
+
 import "./App.css";
 
 function App() {
@@ -19,6 +23,9 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/create-chat" element={<CreateChatPage />} />
           <Route path="/chats/:chatId" element={<ChatPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </div>

@@ -1,5 +1,3 @@
-// frontend/src/pages/LoginPage.jsx
-
 import { useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import axios from "axios";
@@ -15,8 +13,8 @@ function LoginPage() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setCredentials((prevCredentials) => ({
-      ...prevCredentials,
+    setCredentials((prev) => ({
+      ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
   };
@@ -26,11 +24,15 @@ function LoginPage() {
     setError(null);
 
     try {
+      // 1. Trim whitespace
+      const username = credentials.username.trim();
+      const password = credentials.password;
+
       const response = await axios.post(
         "http://localhost:8000/token/",
         {
-          username: credentials.username,
-          password: credentials.password,
+          username,
+          password,
         },
         {
           headers: {
@@ -38,17 +40,23 @@ function LoginPage() {
           },
         }
       );
+
+      // 2. Extragem access și refresh din răspuns
       const { access, refresh } = response.data;
-      // Store tokens in sessionStorage
+
+      // 3. Salvăm exact sub cheile "access_token" și "refresh_token" în sessionStorage
       sessionStorage.setItem("access_token", access);
       sessionStorage.setItem("refresh_token", refresh);
+
+      // 4. Redirecționăm către dashboard
       setRedirect(true);
-    } catch (error) {
-      console.error("Login failed:", error.response?.data || error.message);
+    } catch (err) {
+      console.error("Login failed:", err.response?.data || err.message);
       setError("Invalid username or password");
     }
   }
 
+  // Dacă login-ul a fost reușit, navigăm la /dashboard
   if (redirect) {
     return <Navigate to="/dashboard" />;
   }
@@ -90,7 +98,7 @@ function LoginPage() {
           </button>
         </form>
         <p className="auth-footer">
-          Don't have an account?{" "}
+          Don’t have an account?{" "}
           <Link to="/register" className="auth-link">
             Register here
           </Link>

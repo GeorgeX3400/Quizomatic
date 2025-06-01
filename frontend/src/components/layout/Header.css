@@ -22,6 +22,7 @@
 .header-nav {
   display: flex;
   gap: var(--spacing-md);
+  padding-right: 30px;
 }
 
 .header-nav a {

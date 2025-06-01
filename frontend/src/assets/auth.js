@@ -1,33 +1,36 @@
 import axios from 'axios';
 
 export const storeTokens = (accessToken, refreshToken) => {
-  localStorage.setItem('access_token', accessToken);
-  localStorage.setItem('refresh_token', refreshToken);
+  // Salvăm accesul și refresh-ul în sessionStorage
+  sessionStorage.setItem('access_token', accessToken);
+  sessionStorage.setItem('refresh_token', refreshToken);
 };
 
 export const getAccessToken = async () => {
-  const accessToken = localStorage.getItem('accessToken');
-  const refreshToken = localStorage.getItem('refreshToken');
+  // Citim din sessionStorage
+  const accessToken = sessionStorage.getItem('access_token');
+  const refreshToken = sessionStorage.getItem('refresh_token');
 
   if (!accessToken || !refreshToken) {
     throw new Error('No tokens available');
   }
 
   try {
-    // Verify the access token
+    // Verificăm token-ul de acces
     await axios.post('http://localhost:8000/token/verify/', {
       token: accessToken,
     });
     return accessToken;
   } catch (error) {
     if (error.response && error.response.status === 401) {
-      // Access token is invalid, try refreshing it
+      // Dacă a expirat access-ul, încercăm să dăm refresh
       try {
         const response = await axios.post('http://localhost:8000/token/refresh/', {
           refresh: refreshToken,
         });
         const newAccessToken = response.data.access;
-        localStorage.setItem('access_token', newAccessToken);
+        // Salvăm noul access token în sessionStorage
+        sessionStorage.setItem('access_token', newAccessToken);
         return newAccessToken;
       } catch (refreshError) {
         console.error('Error refreshing token:', refreshError);
@@ -41,12 +44,12 @@ export const getAccessToken = async () => {
 };
 
 export const getRefreshToken = () => {
-  return localStorage.getItem('refresh_token');
+  return sessionStorage.getItem('refresh_token');
 };
 
 export const clearTokens = () => {
-  localStorage.removeItem('access_token');
-  localStorage.removeItem('refresh_token');
+  sessionStorage.removeItem('access_token');
+  sessionStorage.removeItem('refresh_token');
 };
 
 export const refreshAccessToken = async () => {
@@ -63,6 +66,7 @@ export const refreshAccessToken = async () => {
     });
     if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
     const data = await response.json();
+    // Salvăm noul access token (și păstrăm același refreshToken)
     storeTokens(data.access, refreshToken);
     return data.access;
   } catch (error) {
