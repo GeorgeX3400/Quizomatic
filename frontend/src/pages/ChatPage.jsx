@@ -359,14 +359,7 @@ export default function ChatPage() {
             {savedQuizPath && (
               <div className="quiz-actions">
                 <p>Răspunsurile au fost salvate!</p>
-                <a
-                  href={savedQuizPath}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="download-link"
-                >
-                  Descarcă fișierul quiz
-                </a>
+                <p>Dacă vrei să primești sfaturi detaliate despre răspunsurile tale, apasă pe butonul de mai jos. Pentru a putea avea o discuție pe baza acestora, folosește chat-ul din partea de sus a paginii. Spune-i ce ai nevoie!</p>
                 <button onClick={handleGetTips} className="btn-warning">
                   Sfaturi și trucuri
                 </button>
