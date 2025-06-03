@@ -1,27 +1,29 @@
-// src/pages/MainPage.jsx
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { getAccessToken, clearTokens } from '../assets/auth';
-import { useNavigate, Link } from 'react-router-dom';
-import Header from '../components/layout/Header';
+// frontend/src/pages/MainPage.jsx
+
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { getAccessToken, clearTokens } from "../assets/auth";
+import { useNavigate, Link } from "react-router-dom";
+import Header from "../components/layout/Header";
+import "./MainPage.css";
 
 const MainPage = () => {
-  const [chats, setChats]     = useState([]);
+  const [chats, setChats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [chatName, setChatName]   = useState('');
-  const [error, setError]         = useState(null);
+  const [chatName, setChatName] = useState("");
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const fetchChats = async () => {
     try {
       const token = await getAccessToken();
-      const res   = await axios.get('http://localhost:8000/chats/', {
-        headers: { Authorization: `Bearer ${token}` }
+      const res = await axios.get("http://localhost:8000/api/chats/", {
+        headers: { Authorization: `Bearer ${token}` },
       });
       setChats(res.data);
     } catch (err) {
-      console.error('Error fetching chats:', err);
+      console.error("Error fetching chats:", err);
     } finally {
       setLoading(false);
     }
@@ -36,88 +38,60 @@ const MainPage = () => {
     setError(null);
     try {
       const token = await getAccessToken();
-      await axios.post('http://localhost:8000/chats/create/', { name: chatName }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setChatName('');
+      await axios.post(
+        "http://localhost:8000/api/chats/create/",
+        { name: chatName },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setChatName("");
       setShowModal(false);
       fetchChats();
     } catch (err) {
-      console.error('Error creating chat:', err);
-      setError('Failed to create chat. Please try again.');
+      console.error("Error creating chat:", err);
+      setError("Failed to create chat. Please try again.");
     }
   };
 
   const logout = () => {
     clearTokens();
-    navigate('/login');
+    navigate("/login");
   };
 
   return (
     <>
       <Header />
 
-      <div style={{
-        padding: '20px',
-        backgroundColor: '#B5FCCD',
-        minHeight: '100vh',
-        marginTop: '60px'
-      }}>
-        <button
-          onClick={logout}
-          style={{ display: 'block', margin: '20px auto' }}
-        >
+      <div className="app-container page-container mainpage-container">
+        <button onClick={logout} className="logout-button">
           Log out
         </button>
 
-        <h2 style={{ color: '#3A59D1', textAlign: 'center' }}>
-          Your Chats
-        </h2>
+        <h2 className="main-title">Your Chats</h2>
 
         <button
           onClick={() => setShowModal(true)}
-          style={{
-            backgroundColor: '#3D90D7',
-            color: 'white',
-            padding: '10px 20px',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            margin: '20px auto',
-            display: 'block',
-          }}
+          className="btn-primary add-chat-button"
         >
           + Add New Chat
         </button>
 
         {loading ? (
-          <p style={{ textAlign: 'center', color: '#3D90D7' }}>Loading...</p>
+          <p className="loading-text">Loading...</p>
         ) : (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: '20px',
-            marginTop: '20px',
-          }}>
-            {chats.map(chat => (
+          <div className="chats-grid">
+            {chats.map((chat) => (
               <Link
                 key={chat.id}
                 to={`/chats/${chat.id}`}
-                style={{ textDecoration: 'none' }}
+                className="chat-link"
               >
-                <div style={{
-                  backgroundColor: '#7AC6D2',
-                  borderRadius: '8px',
-                  padding: '15px',
-                  boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                  textAlign: 'center',
-                  cursor: 'pointer'
-                }}>
-                  <h3 style={{ color: '#3A59D1' }}>
-                    {chat.name || 'Untitled Chat'}
+                <div className="chat-card">
+                  <h3 className="chat-card-title">
+                    {chat.name || "Untitled Chat"}
                   </h3>
-                  <p style={{ color: '#3D90D7' }}>
-                    Created on: {new Date(chat.created_at).toLocaleDateString()}
+                  <p className="chat-card-date">
+                    Created on:{" "}
+                    {new Date(chat.created_at).toLocaleDateString()}
                   </p>
                 </div>
               </Link>
@@ -126,85 +100,29 @@ const MainPage = () => {
         )}
 
         {showModal && (
-          <div style={{
-            position: 'fixed', top: 0, left: 0,
-            width: '100vw', height: '100vh',
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            display: 'flex', justifyContent: 'center', alignItems: 'center',
-            zIndex: 1000,
-          }}>
-            <div style={{
-              backgroundColor: '#7AC6D2',
-              padding: '20px',
-              borderRadius: '8px',
-              boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-              width: '100%', maxWidth: '400px'
-            }}>
-              <h2 style={{ color: '#3A59D1', textAlign: 'center' }}>
-                Create a New Chat
-              </h2>
-              {error && (
-                <p style={{ color: 'red', textAlign: 'center' }}>
-                  {error}
-                </p>
-              )}
-              <form onSubmit={handleAddChat}>
-                <div style={{ marginBottom: '15px' }}>
-                  <label
-                    htmlFor="chatName"
-                    style={{ color: '#3A59D1', display: 'block', marginBottom: '5px' }}
-                  >
-                    Chat Name
-                  </label>
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <h2 className="modal-title">Create a New Chat</h2>
+              {error && <p className="error-message">{error}</p>}
+              <form onSubmit={handleAddChat} className="modal-form">
+                <div className="form-group">
+                  <label htmlFor="chatName">Chat Name</label>
                   <input
                     id="chatName"
                     type="text"
                     value={chatName}
-                    onChange={e => setChatName(e.target.value)}
+                    onChange={(e) => setChatName(e.target.value)}
                     required
-                    style={{
-                      width: '100%',
-                      padding: '10px',
-                      border: '1px solid #3D90D7',
-                      borderRadius: '4px',
-                      fontSize: '1em',
-                      backgroundColor: '#fff',
-                    }}
+                    className="modal-input"
                   />
                 </div>
-                <button
-                  type="submit"
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    backgroundColor: '#3D90D7',
-                    color: 'white',
-                    fontSize: '1em',
-                    fontWeight: 'bold',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    transition: 'background-color 0.3s',
-                  }}
-                >
+                <button type="submit" className="btn-primary modal-create-button">
                   Create Chat
                 </button>
               </form>
               <button
                 onClick={() => setShowModal(false)}
-                style={{
-                  marginTop: '10px',
-                  width: '100%',
-                  padding: '10px',
-                  backgroundColor: '#3A59D1',
-                  color: 'white',
-                  fontSize: '1em',
-                  fontWeight: 'bold',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.3s',
-                }}
+                className="btn-primary modal-cancel-button"
               >
                 Cancel
               </button>

@@ -1,0 +1,23 @@
+.add-chat-card {
+  display: block;
+  background-color: var(--color-accent);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-md);
+  box-shadow: var(--box-shadow);
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  text-decoration: none;
+}
+
+.add-chat-card h3 {
+  margin: 0;
+  color: var(--color-text-on-primary);
+  font-weight: var(--font-weight-medium);
+  font-size: 1.125rem;
+}
+
+.add-chat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}

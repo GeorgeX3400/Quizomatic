@@ -1,186 +1,201 @@
+/* frontend/src/index.css */
+
+/* ------------------------------- */
+/* PALLETĂ DE CULORI & VARIABILE  */
+/* ------------------------------- */
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  /* --- Fonturi & Tipografie --- */
+  --font-family-sans: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-size-base: 16px;
+  --line-height-base: 1.5;
 
+  /* --- Culori principale --- */
+  --color-primary: #4A90E2;         /* albastru luminos (buton, header) */
+  --color-secondary: #F5F9FF;       /* albastru foarte deschis (fundaluri card) */
+  --color-accent: #50E3C2;          /* turcoaz pentru accent (buton Confirmă etc.) */
+  --color-success: #28A745;         /* verde pentru confirmări */
+  --color-warning: #FFC107;         /* galben pentru atenționări */
+  --color-text-on-primary: #FFFFFF; /* alb text pe fundal închis */
+
+  /* --- Text & fundaluri --- */
+  --color-text-primary: #1A1A1A;    /* text principal (închis) */
+  --color-text-secondary: #555555;  /* text secundar (gri) */
+  --color-background: #FAFCFF;      /* fundal pagină (alb-albăstrui) */
+  --color-border: #E0E0E0;          /* border standard */
+  --color-background-chat: #F9F9F9; /* fundal ferestră chat */
+
+  /* --- Borduri & umbre --- */
+  --border-radius: 8px;
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  /* --- Spațieri (padding/margin) --- */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* --- Scheme light/dark (extensibil) --- */
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #b5fccd;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
+/* ------------------------------- */
+/* RESET & STILURI GLOBALE         */
+/* ------------------------------- */
 
+html,
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--color-text-primary);
+  background-color: var(--color-background);
   min-height: 100vh;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+/* Link-uri */
+a {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-accent);
+  text-decoration: none;
+}
+a:hover {
+  color: #535BF2;
+  text-decoration: underline;
 }
 
+/* Butoane standard */
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
+  font-size: 1rem;
   font-family: inherit;
-  background-color: #3d90d7;
+  line-height: 1.2;
+  background: none;
+  border: none;
+  border-radius: var(--border-radius);
+  padding: var(--spacing-sm) var(--spacing-md);
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
+  transition: background-color 0.25s ease,
+              box-shadow 0.25s ease,
+              transform 0.1s ease;
 }
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 3px solid rgba(74, 144, 226, 0.5);
+  outline-offset: 2px;
 }
+
+/* Buton primar */
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-text-on-primary);
+}
+.btn-primary:hover {
+  background-color: #3B7DC4; /* nuanță mai închisă */
+  transform: translateY(-1px);
+}
+
+/* Buton de succes */
+.btn-success {
+  background-color: var(--color-accent);
+  color: var(--color-text-on-primary);
+}
+.btn-success:hover {
+  background-color: #46BFAE; /* turcoaz ușor mai închis */
+  transform: translateY(-1px);
+}
+
+/* Buton de atenționare */
+.btn-warning {
+  background-color: var(--color-warning);
+  color: var(--color-text-primary);
+}
+.btn-warning:hover {
+  background-color: #E0A800; /* galben mai închis */
+  transform: translateY(-1px);
+}
+
+/* ------------------------------- */
+/* CONTAINERE & LAYOUT             */
+/* ------------------------------- */
+
+/* Container central al aplicației */
+.app-container {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: var(--spacing-lg) var(--spacing-md);
+}
+
+/* Wrapper pentru conținut, cu spațiu lăsat pentru Header fix */
+.page-container {
+  margin-top: 4rem;       /* lasă loc pentru Header (4rem înălțime) */
+  padding: var(--spacing-md);
+}
+
+/* Fundal general al paginilor (zone colorate în spate) */
+.page-background {
+  background-color: var(--color-secondary);
+  min-height: calc(100vh - 4rem);
+}
+
+/* ------------------------------- */
+/* SCHEME LIGHT / DARK             */
+/* ------------------------------- */
 
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
+    --color-text-primary: #213547;
+    --color-background: #FFFFFF;
+    --color-border: #E0E0E0;
   }
   button {
-    background-color: #f9f9f9;
+    background-color: #F9F9F9;
+    color: var(--color-text-primary);
+  }
+  a:hover {
+    color: #747BFF;
   }
 }
 
-/* Authentication Page Styles */
-.auth-container {
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-text-primary: #E0E0E0;
+    --color-background: #121212;
+    --color-border: #333333;
+  }
+  a {
+    color: #50E3C2;
+  }
+  button {
+    background-color: #1E1E1E;
+    color: var(--color-text-primary);
+  }
+}
+
+/* ------------------------------- */
+/* UTILITĂȚI                        */
+/* ------------------------------- */
+
+/* Centrare flexibilă */
+.flex-center {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  min-height: 100vh;
-  background-color: #b5fccd;
-  padding: 20px;
+  align-items: center;
 }
 
-.auth-card {
-  background-color: #7ac6d2;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  width: 100%;
-  max-width: 400px;
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeIn 0.5s ease-out forwards;
+/* Spațiere orizontală între elemente */
+.gap-sm {
+  gap: var(--spacing-sm);
 }
-
-@keyframes fadeIn {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.gap-md {
+  gap: var(--spacing-md);
 }
-
-.auth-title {
-  font-size: 1.8em;
-  color: #3a59d1;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-.form-group {
-  margin-bottom: 15px;
-}
-
-label {
-  display: block;
-  font-size: 1em;
-  font-weight: 500;
-  color: #3a59d1;
-  margin-bottom: 5px;
-  text-align: left;
-  padding-left: 2px;
-}
-
-input {
-  width: 100%;
-  padding: 10px;
-  color:rgba(0, 0, 0, 0.648);
-  border: 3px solid #3d90d7;
-  border-radius: 4px;
-  font-size: 1em;
-}
-
-input:focus {
-  outline: none;
-  color:rgba(0, 0, 0, 0.648);
-  border-color: #3a59d1;
-  box-shadow: 0 0 4px #3a59d1;
-}
-
-/* Updated input styles for better appearance */
-.auth-input {
-  background-color: #ffffff;
-  border: 2px solid #3d90d7;
-  border-radius: 4px;
-  padding: 10px;
-  font-size: 1em;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.auth-input:focus {
-  outline: none;
-  border-color: #3a59d1;
-  box-shadow: 0 0 4px #3a59d1;
-}
-
-.auth-button {
-  width: 100%;
-  padding: 10px;
-  background-color: #3d90d7;
-  color: white;
-  font-size: 1em;
-  font-weight: bold;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.auth-button:hover {
-  background-color: #3a59d1;
-}
-
-.auth-footer {
-  margin-top: 15px;
-  text-align: center;
-  font-size: 0.9em;
-  color: #3a59d1;
-}
-
-.auth-link {
-  color: #3d90d7;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-.auth-link:hover {
-  text-decoration: underline;
+.gap-lg {
+  gap: var(--spacing-lg);
 }
