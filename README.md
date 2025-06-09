@@ -21,3 +21,15 @@ Quizomatic este o aplicație ce are ca scop eficientizarea procesului de învă�
 Diagramele UML pentru proiect se găsesc mai jos:
  - [Diagrama conceptuală pentru baza de date](https://www.mermaidchart.com/raw/9f2a1368-f6b4-4884-9e9b-b81d6e7ad943?theme=light&version=v0.1&format=svg)
  - [Diagrama workflow-ului](https://www.mermaidchart.com/raw/c73fab0e-d293-42cc-84c4-8aa928e6eb21?theme=light&version=v0.1&format=svg)
+
+## Utilizarea Tool-urilor de AI
+În dezvoltarea proiectului nostru am folosit ChatGPT și Github Copilot. 
+Scopul prinicpal al acestora a fost cel de debugging. 
+Cele 2 modele de AI și-au îmbunătățit răspunsurile pe măsură ce le ofeream informații relevante problemelor întâlnite. În lipsa acestora, nu au dat niște răspunsuri ajutătoare. 
+Exemple de probleme ale răspunsurilor:
+ - Github Copilot: atunci când îi ziceam de o problema întălnită într-un fișier pe care nu l-a primit drept context, acesta halucina, spunând că nu este de fapt nici o problemă în codul care a crăpat;
+ - ChatGPT: la o problemă zisă în cod, a răspuns cu o serie de probleme care ar putea fi în cod, nereușind să o spună pe cea care era de fapt.
+Cum am corectat greșelile făcute de modelele de AI:
+ - Github Copilot: am dat în context toate fișierele care aveau cod implicat în eroarea respectivă;
+ - ChatGPT: am dat în prompt codul care a fost executat ce a produs eroarea.
+ Pentru ambele modele, am descris în mod detaliat cum am produs eroarea (ex: ce cereri am făcut la backend, ce operații am făcut la UI-ul din frontend). 
