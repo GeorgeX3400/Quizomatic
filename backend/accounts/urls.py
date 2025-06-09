@@ -30,4 +30,9 @@ urlpatterns = [
       name='generate_quiz'
     ),
     path('api/chats/<int:chat_id>/quiz-tips/', views.QuizTipsView.as_view(), name='quiz_tips'),
+    path(
+      'api/chats/<int:chat_id>/quiz-summary/',
+      views.QuizSummaryView.as_view(),
+      name='quiz_summary'
+    ),
 ]

@@ -47,7 +47,7 @@ export default function ChatPage() {
       try {
         const token = await getAccessToken();
         const res = await axios.get(
-          `http://localhost:8000/documents/?chat_id=${chatId}`,
+          `http://localhost:8000/api/documents/?chat_id=${chatId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setDocs(res.data);
@@ -174,10 +174,7 @@ export default function ChatPage() {
       return;
     }
 
-    const payload = {
-      quiz: quizQuestions,
-      answers: selectedAnswers,
-    };
+    const payload = { quiz: quizQuestions, answers: selectedAnswers };
 
     try {
       const token = await getAccessToken();
@@ -186,7 +183,16 @@ export default function ChatPage() {
         payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );
+
+      // 1) setăm link-ul de download
       setSavedQuizPath(res.data.saved_path);
+
+      // 2) extragem review-ul și-l adăugăm în chat
+      const review = res.data.review;
+      setMessages((prev) => [
+        ...prev,
+        { role: review.role, content: review.content },
+      ]);
     } catch (e) {
       console.error("Error submitting quiz:", e.response || e.message);
       setError("Eroare la trimiterea răspunsurilor.");
@@ -228,6 +234,27 @@ export default function ChatPage() {
     }
   };
 
+  // ─── Overall Improvement Assistant ───────────
+  const handleSummary = async () => {
+    setError(null);
+    try {
+      const token = await getAccessToken();
+      const res = await axios.post(
+        `http://localhost:8000/api/chats/${chatId}/quiz-summary/`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      // res.data este ChatMessage-ul creat
+      setMessages((m) => [
+        ...m,
+        { role: res.data.role, content: res.data.content },
+      ]);
+    } catch (e) {
+      console.error("Error fetching summary:", e);
+      setError("Eroare la generarea raportului de performanță.");
+    }
+  };
+
   return (
     <>
       <Header />
@@ -241,7 +268,7 @@ export default function ChatPage() {
               key={i}
               className={`message-item ${m.role === "user" ? "user" : "assistant"}`}
             >
-              <div className={`message-bubble ${m.role === "user" ? "user" : "assistant"}`}>
+              <div className={`message-bubble ${m.role}`}>
                 {m.content}
               </div>
             </div>
@@ -276,6 +303,23 @@ export default function ChatPage() {
           chatId={chatId}
           onSuccess={handleDocUploadSuccess}
         />
+
+        {/* ── Improvement Assistant Button ── */}
+        <div style={{ margin: "20px 0", textAlign: "center" }}>
+          <button
+            onClick={handleSummary}
+            style={{
+              backgroundColor: "#17a2b8",
+              color: "#fff",
+              padding: "8px 16px",
+              border: "none",
+              borderRadius: 4,
+              cursor: "pointer"
+            }}
+          >
+            Asistent îmbunătățire
+          </button>
+        </div>
 
         {/* ─── Quiz generation UI ───────────── */}
         <div className="quiz-generation">
@@ -359,7 +403,11 @@ export default function ChatPage() {
             {savedQuizPath && (
               <div className="quiz-actions">
                 <p>Răspunsurile au fost salvate!</p>
-                <p>Dacă vrei să primești sfaturi detaliate despre răspunsurile tale, apasă pe butonul de mai jos. Pentru a putea avea o discuție pe baza acestora, folosește chat-ul din partea de sus a paginii. Spune-i ce ai nevoie!</p>
+                <p>
+                  Dacă vrei să primești sfaturi detaliate despre răspunsurile tale,
+                  apasă pe butonul de mai jos. Pentru a putea avea o discuție pe baza
+                  acestora, folosește chat-ul din partea de sus a paginii. Spune-i ce ai nevoie!
+                </p>
                 <button onClick={handleGetTips} className="btn-warning">
                   Sfaturi și trucuri
                 </button>
