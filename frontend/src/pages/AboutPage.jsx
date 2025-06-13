@@ -12,7 +12,9 @@ const AboutPage = () => {
         <h2>Despre noi</h2>
 
       <p>
-        Quizomatic este o platformă modernă, construită pentru a transforma studiul pasiv în experiențe interactive care accelerează procesul de învățare și fixează noțiunile în profunzime. Echipa noastră își propune să ofere o soluție ingenioasă pentru oricine dorește să înțeleagă mai bine materialele de curs, articolele științifice sau orice document informațional, prin generarea automată de quiz-uri personalizate.
+        Quizomatic este o platformă modernă, construită pentru a transforma studiul pasiv în experiențe interactive care accelerează procesul de învățare și fixează noțiunile în profunzime. 
+        Echipa noastră își propune să ofere o soluție ingenioasă pentru oricine dorește să înțeleagă mai bine materialele de curs, articolele științifice sau orice document informațional, 
+        prin generarea automată de quiz-uri personalizate.
       </p>
 
       <h3>Ce probleme rezolvăm?</h3>
@@ -26,7 +28,7 @@ const AboutPage = () => {
       </ul>
 
       <h3>Cum funcționează Quizomatic?</h3>
-      <ol>
+      <ul>
         <li>
           <strong>Încărcarea documentului</strong> (PDF, DOCX, TXT): Selectezi fișierul din care vrei să înveți.
         </li>
@@ -39,7 +41,7 @@ const AboutPage = () => {
         <li>
           <strong>Rezolvare și feedback</strong>: Parcurgi quiz-ul, primești imediat răspunsurile corecte, iar dacă greșești, poți cere explicații detaliate pentru fiecare întrebare.
         </li>
-      </ol>
+      </ul>
 
       <p>
         Pe lângă quiz-uri, poți solicita și un <strong>rezumat automat al documentului</strong>: aplicația extrage conceptele-cheie și îți prezintă o sinteză a materialului, ideală pentru o recapitulare rapidă. În funcție de performanța ta la quiz-uri, poți primi <strong>feedback personalizat</strong> care te îndrumă spre zonele în care ai nevoie de îmbunătățiri.

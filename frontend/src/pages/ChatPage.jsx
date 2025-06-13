@@ -304,22 +304,7 @@ export default function ChatPage() {
           onSuccess={handleDocUploadSuccess}
         />
 
-        {/* ── Improvement Assistant Button ── */}
-        <div style={{ margin: "20px 0", textAlign: "center" }}>
-          <button
-            onClick={handleSummary}
-            style={{
-              backgroundColor: "#17a2b8",
-              color: "#fff",
-              padding: "8px 16px",
-              border: "none",
-              borderRadius: 4,
-              cursor: "pointer"
-            }}
-          >
-            Asistent îmbunătățire
-          </button>
-        </div>
+        
 
         {/* ─── Quiz generation UI ───────────── */}
         <div className="quiz-generation">
@@ -402,11 +387,11 @@ export default function ChatPage() {
 
             {savedQuizPath && (
               <div className="quiz-actions">
-                <p>Răspunsurile au fost salvate!</p>
+                <p>Răspunsurile au fost salvate! Tocmai ai primit un mesaj în chat-ul de sus pentru a afla care erau răspunsurile corecte.</p>
                 <p>
                   Dacă vrei să primești sfaturi detaliate despre răspunsurile tale,
                   apasă pe butonul de mai jos. Pentru a putea avea o discuție pe baza
-                  acestora, folosește chat-ul din partea de sus a paginii. Spune-i ce ai nevoie!
+                  acestora, folosește chat-ul din partea de sus a paginii. Spune-i de ce ai nevoie!
                 </p>
                 <button onClick={handleGetTips} className="btn-warning">
                   Sfaturi și trucuri
@@ -415,6 +400,27 @@ export default function ChatPage() {
             )}
           </div>
         )}
+
+        {/* ── Improvement Assistant Button ── */}
+        <div style={{ margin: "20px auto", textAlign: "center", maxWidth: 600 }}>
+          <p>
+            Vrei să îți îmbunătățești performanța la quiz-uri? Apasă butonul de mai jos pentru a primi un raport detaliat despre performanțele tale la toate quiz-urile din acest chat. 
+          </p>
+          <button
+            onClick={handleSummary}
+            style={{
+              backgroundColor: "#17a2b8",
+              color: "#fff",
+              padding: "8px 16px",
+              border: "none",
+              borderRadius: 4,
+              cursor: "pointer"
+            }}
+          >
+            Asistent îmbunătățire
+          </button>
+        </div>
+
       </div>
     </>
   );
