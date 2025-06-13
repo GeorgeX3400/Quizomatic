@@ -217,7 +217,7 @@ class QuizGenerateView(APIView):
                     "Use *only* the following document content (OCR pages JSON) as your source. "
                     "Do not draw on any external knowledge or hallucinate.  \n\n"
                     f"{doc_json_str}\n\n"
-                    "Now generate a quiz "
+                    "Now generate a quiz in Romanian "
                     f"of *{difficulty}* difficulty with *{num_q}* questions "
                     f"based *strictly* on that content. "
                     + (
@@ -304,7 +304,10 @@ class SubmitQuizView(APIView):
 
         # 3) Adăugare context sistem + (opțional) documente
         messages = [
-            {"role": "system", "content": "You are a helpful tutor."}
+            {"role": "system", "content": "Ești un tutore prietenos și foarte bine pregătit care oferă feedback detaliat și clar în limba română."
+            "Te rog să răspunzi **fără niciun fel de formatare Markdown** "
+            "(fără #, *, –, backticks etc.), folosind doar texte simple, "
+            "structurate în paragrafe clare." }
         ]
         for doc in chat.documents.all():
             if doc.extracted_json:
@@ -327,6 +330,7 @@ class SubmitQuizView(APIView):
                 "  2) Dacă răspunsul meu a fost corect sau greșit,\n"
                 "  3) O scurtă explicație dacă am greșit.\n\n"
                 f"{review_block}"
+                "IMPORTANT: nu folosi format Markdown, ci prezintă totul în paragrafe de text simple."
             )
         })
 
@@ -367,7 +371,10 @@ class QuizTipsView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        messages = [{"role": "system", "content": "You are a helpful tutor who provides improvement tips."}]
+        messages = [{"role": "system", "content": "Ești un tutore prietenos și util, specializat în oferirea de sfaturi practice și recomandări detaliate pentru îmbunătățirea performanțelor la quiz-uri."
+                     "Te rog să răspunzi **fără niciun fel de formatare Markdown** "
+                     "(fără #, *, –, backticks etc.), folosind doar texte simple, "
+                     "structurate în paragrafe clare."}]
         for doc in chat.documents.all():
             if getattr(doc, "extracted_json", None):
                 json_str = json.dumps(doc.extracted_json, ensure_ascii=False)
@@ -385,8 +392,9 @@ class QuizTipsView(APIView):
         quiz_block = "\n\n".join(quiz_lines)
 
         user_prompt = (
-            "I have just completed the following quiz. Please provide detailed improvement tips on each answer.\n\n"
+            "Tocmai am finalizat quiz-ul de mai jos. Te rog să îmi oferi sfaturi detaliate de îmbunătățire pentru fiecare răspuns:\n\n"
             f"{quiz_block}"
+            "IMPORTANT: nu folosi format Markdown, ci prezintă totul în paragrafe de text simple."
         )
         messages.append({"role": "user", "content": user_prompt})
 
@@ -454,13 +462,17 @@ class QuizSummaryView(APIView):
 
         # 4) Pregătim mesajele pentru LLM
         msgs = [
-            {"role": "system", "content": "You are a helpful tutor who analyzes performance over time."},
+            {"role": "system", "content": "Ești un tutore de încredere care analizează evoluția performanțelor mele de-a lungul timpului și oferă recomandări de îmbunătățire."
+            "Te rog să răspunzi **fără niciun fel de formatare Markdown** "
+            "(fără #, *, –, backticks etc.), folosind doar texte simple, "
+            "structurate în paragrafe clare." },
             {"role": "user", "content":
                 "Am făcut următoarele quiz-uri de-a lungul timpului. "
                 "Te rog să-mi spui, pe ansamblu:\n"
                 "  - Care sunt domeniile mele slabe (tematici frecvent greșite)?\n"
                 "  - Cum pot să mă îmbunătățesc în fiecare dintre ele.\n\n"
                 f"{summary_block}"
+                "IMPORTANT: nu folosi format Markdown, ci prezintă totul în paragrafe de text simple."
             }
         ]
 
