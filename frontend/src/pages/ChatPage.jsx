@@ -47,7 +47,7 @@ export default function ChatPage() {
       try {
         const token = await getAccessToken();
         const res = await axios.get(
-          `http://localhost:8000/api/documents/?chat_id=${chatId}`,
+          `http://localhost:8000/documents/?chat_id=${chatId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setDocs(res.data);

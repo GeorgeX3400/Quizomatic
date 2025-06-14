@@ -2,7 +2,7 @@ import re
 import requests
 
 class LLMAccess:
-    MODEL = "qwen3:8B"
+    MODEL = "qwen3:4B"
     ENDPOINT = "http://127.0.0.1:11434/v1/chat/completions"
 
     @classmethod
